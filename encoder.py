@@ -1,10 +1,10 @@
 alpha = {
-    "a": "@", "b": "7", "c": "#", "d": "m", "e": "$",
-    "f": "2", "g": "&", "h": "Q", "i": "!", "j": "9",
-    "k": "%", "l": "x", "m": "*", "n": "A", "o": "+",
-    "p": "5", "q": "?", "r": "L", "s": "^", "t": "0",
-    "u": "Z", "v": "(", "w": "}", "x": "8", "y": "~", "z": "]"
-    }
+"a": "@", "b": "7", "c": "#", "d": "m", "e": "$",
+"f": "2", "g": "&", "h": "Q", "i": "!", "j": "9",
+"k": "%", "l": "x", "m": "*", "n": "A", "o": "+",
+"p": "5", "q": "?", "r": "L", "s": "^", "t": "0",
+"u": "Z", "v": "(", "w": "}", "x": "8", "y": "~", "z": "]"
+}
 numbers = {
 "0": "b", "1": "C", "2": "=", "3": "d", "4": "|",
 "5": "E", "6": "/", "7": "f", "8": ":", "9": "G"
@@ -37,22 +37,3 @@ def encode(password):
 
     return encoded
 
-def decode(encoded_text):
-    reverse_mapping = {v: k for k, v in mapping.items()}
-
-    decoded = ""
-
-    for char in encoded_text:
-        decoded += reverse_mapping.get(char, char)
-
-    return decoded
-
-def main():
-    user_input = input("Pass: ")
-    encoded_pass = encode(user_input)
-    decoded_pass = decode(encoded_pass)
-    print(f"Encoded = {encoded_pass}")
-    print(f"Decoded = {decoded_pass}")
-
-if __name__ == "__main__":
-    main()

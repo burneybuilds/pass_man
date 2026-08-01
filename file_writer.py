@@ -1,22 +1,9 @@
 import json
 
 from encoder import encode
-from file_reader import read_password
+#from file_reader import read_password
 
-def validate_website_name():
-    while True:
-        name = input("<Pas-Man> Name : ").strip()
-        if not name.isalpha():
-            print("Name != Numbers.")
-            continue
-        return name
-
-def new_entry():
-    website_name = validate_website_name()
-    email = input("<Pas-Man> Email : ")
-    user_name = input("<Pas-Man> User_name : (Can be left empty if N/A)")
-    password = input("<Pas-Man> PassWord : ")
-
+def new_entry(website_name, email, user_name, password):
     encodede_pass = encode(password)
 
     if user_name == "":
@@ -24,26 +11,41 @@ def new_entry():
 
     data = {
         "name" : website_name,
-        "Email" :  email,
-        "User Name": user_name,
-        "Password" : encodede_pass,
+        "email" :  email,
+        "user_name": user_name,
+        "password" : encodede_pass,
     }
     return data
 
-def acc_name():
-    data = new_entry()
+def file_entry(record):
+    # trys to opens a file if an error then returns a empty dict.
+    try:
+        with open("vault.json", "r") as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = {}
 
-    name = data["name"]
+    # This is takes so we can have a list for each website.
+    name = record["name"]
 
-    name = {
-        name : [data]
+    # Formating data into a dict
+    account = {
+        "email": record["email"],
+        "username": record["user_name"],
+        "password": record["password"]
     }
-    return name
 
+    # Checks if the list / website is there or else creats a new list.
+    if name not in data:
+        data[name] = []
 
-def file_entry():
-    data = acc_name()
-    with open("valut.json", "a") as w:
-        json.dump(data, w, indent=4, ensure_ascii=False)
+    data[name].append(account)
 
-file_entry()
+    with open("vault.json", "w") as f:
+        json.dump(data, f, indent=4)
+    
+def writer_handler(website_name, email, user_name, password):
+    data = new_entry(website_name, email, user_name, password)
+    file_entry(data)
+    return 0
+    

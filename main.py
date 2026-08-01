@@ -1,6 +1,8 @@
 import os
 import sys
 
+import file_writer
+import file_reader
 
 def banner():
     passman_banner=rf"""
@@ -41,9 +43,17 @@ def command_decidion():
     command  = validate_input()
 
     if command == "show":
-        ...
+        output = show_record()
+        if output == 0:
+            return "✅ Done."
+        else:
+            return "🔴 Opps Something went Wrong."
     elif command == "add":
-        ...
+        output = enter_record()
+        if output == 0:
+            return "✅ Done."
+        else:
+            return "🔴 Opps Something went Wrong."
     elif command == "del":
         ...
     elif command == "edit":
@@ -52,10 +62,27 @@ def command_decidion():
         clear_screen()
         sys.exit("Seen Yaa..")
 
+def enter_record():
+
+    website_name = input("<Pas-Man> Web_Name: ").strip()
+    email = input("<Pas-Man> Email: ").strip()
+    user_name = input("<Pas-Man> User Name: (Can be left empty if None)").strip()
+    password = input("<Pas-Man> PassWord: ").strip()
+
+    data = file_writer.writer_handler(website_name, email, user_name, password)
+    
+    return data
+
+def show_record():
+    requested_pass = input("<Pas-Man> Name: ")
+    clear_screen()
+    file_reader.display_formater(requested_pass)
+    return 0
+
 def main():
     clear_screen()
     banner()
-    command_decidion()
+    print(command_decidion())
 
 if __name__ == "__main__":
     main()

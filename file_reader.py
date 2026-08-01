@@ -1,19 +1,38 @@
 import json
 
-from file_writer import acc_name
+from rich import print
+from rich.panel import Panel 
 
-def read_password():
-    input_data = acc_name()
+from decoder import decode
 
-    name = input_data["name"]
+def choice_pass():
+    print("You have Multipla Account on this service ! ")
+    return input("<Pas-Man> Enter the Email? ").strip()
 
-    with open("valut.json", "r") as r:
+def show_req(name):
+    email = ""
+    password = ""
+    encoded_pass= ""
+
+    with open("vault.json", "r") as r:
         data = json.load(r)
-        ex_name = data["github"]
+        requested_item = data[name]
 
-    if name == ex_name:
-        return True
-    else:
-        return False
-            
+    if len(requested_item) > 1:
+        email_req = choice_pass()
 
+    for r in requested_item:
+        if r["email"] == email_req:
+            email = r["email"]
+            encoded_pass = r["password"]
+        
+    password = decode(encoded_pass)
+
+    return email, password
+
+
+def display_formater(name):
+    email, password = show_req(name)
+
+    print(Panel(f"Email: [green]{email}\nPassword: [green]{password}", title="Pas Man"))
+    
