@@ -1,3 +1,6 @@
 __pycache__
 .env
 *vault.json
+passman.egg-info
+.db
+test.py

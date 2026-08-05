@@ -29,7 +29,7 @@ def validate_input():
             if user_choice not in user_options:
                 clear_screen()
                 banner()
-                print("\n[-] Error: sh, add , rm , update Only.\n")
+                print("\n[-] Error: show, add , rm, update.\n")
                 continue
             return user_choice
 
@@ -43,27 +43,26 @@ def validate_input():
             sys.exit("Seen Yaa..")
 
 def command_decidion():
-    command  = validate_input()
-
-    if command == "show":
-        output = show_record()
-        if output == 0:
-            return "✅ Done."
-        else:
-            return "🔴 Opps Something went Wrong."
-    elif command == "add":
-        output = enter_record()
-        if output == 0:
-            return "✅ Done."
-        else:
-            return "🔴 Opps Something went Wrong."
-    elif command == "del":
-        ...
-    elif command == "edit":
-        ...
-    elif command == "exit":
-        clear_screen()
-        sys.exit("Seen Yaa..")
+    while True:
+        command  = validate_input()
+    
+        if command == "show":
+            output = show_record()
+            # if output == 0:
+            #     return "Done."
+        elif command == "add":
+            output = enter_record()
+            # if output == 0:
+            #     return "Done."
+            # else:
+            #     return "Opps Something went Wrong."
+        elif command == "del":
+            ...
+        elif command == "edit":
+            ...
+        elif command == "exit":
+            clear_screen()
+            sys.exit("Seen Yaa..")
 
 def enter_record():
 
@@ -77,10 +76,15 @@ def enter_record():
     return data
 
 def show_record():
-    requested_pass = input("<Pas-Man> Name: ")
-    clear_screen()
-    file_reader.display_formater(requested_pass)
-    return 0
+    while True:
+        requested_pass = input("<Pas-Man> Name: ")
+
+        if requested_pass == "back":
+            return 
+
+        clear_screen()
+        file_reader.display_formater(requested_pass)
+        return 0
 
 def main():
     clear_screen()
