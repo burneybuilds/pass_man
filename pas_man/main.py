@@ -51,7 +51,7 @@ def command_decidion():
             # if output == 0:
             #     return "Done."
         elif command == "add":
-            output = enter_record()
+            output = file_writer.writer_handler()
             # if output == 0:
             #     return "Done."
             # else:
@@ -63,17 +63,6 @@ def command_decidion():
         elif command == "exit":
             clear_screen()
             sys.exit("Seen Yaa..")
-
-def enter_record():
-
-    website_name = input("<Pas-Man> Web_Name: ").strip()
-    email = input("<Pas-Man> Email: ").strip()
-    user_name = input("<Pas-Man> User Name: (Can be left empty if None)").strip()
-    password = input("<Pas-Man> PassWord: ").strip()
-
-    data = file_writer.writer_handler(website_name, email, user_name, password)
-    
-    return data
 
 def show_record():
     while True:
