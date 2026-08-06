@@ -2,5 +2,5 @@ __pycache__
 .env
 *vault.json
 passman.egg-info
-.db
+*.db
 test.py

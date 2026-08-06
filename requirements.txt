@@ -1,2 +1,4 @@
 rich 
 pytests
+cryptography 
+argon2-cffi
