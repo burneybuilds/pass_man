@@ -2,6 +2,8 @@ import re
 from datetime import datetime
 import sqlite3
 from encoder import encode
+from rich import print
+from rich.panel import Panel
 
 # cur.execute("CREATE TABLE password(website_name, email, user_name, password, created_at)")
 
@@ -24,10 +26,10 @@ Returns:
         0 if the entry was successfully inserted.
         1 if an error occurred while inserting the entry.
 """
-def db_connection(website_name, email, user_name, password, time):
+def db_connection(website_name, email, user_name, password, created_at, updated_at):
     try:
         # Creates a connection with the sqllite db.
-        session = sqlite3.connect("tutorial.db")
+        session = sqlite3.connect("tutorial.db", autocommit=True)
 
         # This is for running command and communicating with the db.
         cur = session.cursor()
@@ -40,20 +42,21 @@ def db_connection(website_name, email, user_name, password, time):
             email TEXT,
             user_name TEXT,
             password TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
         )
         """)
 
         cur.execute(
             """
             INSERT INTO password
-            (website_name, email, user_name, password, created_at)
-            VALUES (?, ?, ?, ?, ?)
+            (website_name, email, user_name, password, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (website_name, email, user_name, password, time)
+            (website_name, email, user_name, password, created_at, updated_at)
         )
         # Updates the db with the data.
-        session.commit()
+        # session.commit()
 
         # Closes the connection to the db.
         session.close()
@@ -118,13 +121,29 @@ def valid_user_name():
 def validate_password():
     return input("<Pas-Man> PassWord: ")
 
+def confirm_data(website_name, email, user_name, password):
+    print(Panel.fit(f"Name: {website_name}\nEmail: {email}\nUser_Name: {user_name}\nPassword: {password}"))
+    print("Check if all the data is correct? ")
+
+    while True:
+        try:
+            master_key = int(input("Enter the Master Key: "))
+            return master_key
+        except ValueError:
+            continue
+
 def writer_handler():
     website_name = website_name_valid()
     email = validate_email()
     user_name = valid_user_name()
     password = validate_password()
-    time = str(datetime.now().strftime("%Y-%m-%d %H:%M"))
-    data = db_connection(website_name, email, user_name, password, time)
+    time = str(datetime.now().strftime("%Y-%m-%d"))
+    key = confirm_data(website_name, email, user_name, password)
+
+    if key != 123:
+        return "Wrong Password"
+    
+    data = db_connection(website_name, email, user_name, password, time, time)
     return data
 
 def main():
