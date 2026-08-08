@@ -1,8 +1,13 @@
 import os
 import sys
+from datetime import datetime
 
-import file_writer
-import file_reader
+from rich import print
+from rich.panel import Panel 
+
+import validate 
+import db_write 
+import db_read 
 
 def banner():
     passman_banner=rf"""
@@ -47,33 +52,97 @@ def command_decidion():
         command  = validate_input()
     
         if command == "show":
-            output = show_record()
+            output = check_master_pass()
             # if output == 0:
             #     return "Done."
         elif command == "add":
-            output = file_writer.writer_handler()
+            output = add_command_handler()
             # if output == 0:
             #     return "Done."
             # else:
             #     return "Opps Something went Wrong."
         elif command == "del":
-            ...
+            del_command_handler()
         elif command == "edit":
-            ...
+            edit_command_handler()
         elif command == "exit":
             clear_screen()
             sys.exit("Seen Yaa..")
 
-def show_record():
+def add_command_handler():
+    """
+    Handle the `add` command by validating the entry details,
+    confirming the master key, and writing the new entry to the database.
+
+    Returns:
+        str: The result of the database operation or an error message
+        if the master key is incorrect.
+    """
+    # Collect and validate the new entry details.
+    website_name = validate.website_name_valid()
+    email = validate.validate_email()
+    user_name = validate.valid_user_name()
+    password = validate.validate_password()
+
+    # Record when the entry was created.
+    time = str(datetime.now().strftime("%Y-%m-%d"))
+
+    # Make sure the person adding the password is actually us. 👀
+    key = validate.confirm_data(website_name, email, user_name, password)
+
+    if key != 123:
+        return "Wrong Password"
+
+    # Everything checks out — send the entry to SQLite.
+    data = db_write.db_connection(
+        website_name,
+        email,
+        user_name,
+        password,
+        time,
+        time
+    )
+
+    return data
+
+def edit_command_handler():
+    website_name =  input("<Pas_Man> Website: ")
+    email = input("<Pas_Man> Email: ")
+    new_password = input ("<Pas_Man> PassWord: " )
+    time = str(datetime.now().strftime("%Y-%m-%d"))
+    code = db_write.db_update(new_password, time, website_name, email)
+    if code == 0:
+        print("Done")
+    else:
+        print("Something Went Wrong.")
+
+def check_master_pass():
+    website = input("Website: ").lower()
+    email = input("Email: ").lower()
+    master_key= input("Key: ").lower()
+
     while True:
-        requested_pass = input("<Pas-Man> Name: ")
+        if master_key != "123":
+            print("Wrong Pass")
+            continue 
+        else:
+            break
 
-        if requested_pass == "back":
-            return 
+    resulte = db_read.read_db(website, email)
+    website = resulte[0]
+    email = resulte[1]
+    password = resulte[2]
 
-        clear_screen()
-        file_reader.display_formater(requested_pass)
-        return 0
+    print(Panel.fit(f"Name: {website}\nEmail: {email}\nPassword: {password}"))
+
+def del_command_handler():
+    website_name =  input("<Pas_Man> Website: ")
+    email = input("<Pas_Man> Email: ")
+    code = db_write.db_delet(website_name, email)
+    if code == 0:
+            print("Done")
+    else:
+        print("Something Went Wrong.")
 
 def main():
     clear_screen()
