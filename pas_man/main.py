@@ -54,15 +54,9 @@ def command_decidion():
         command  = validate_input()
     
         if command == "show":
-            output = check_master_pass()
-            # if output == 0:
-            #     return "Done."
+            show_command_handler()
         elif command == "add":
-            output = add_command_handler()
-            # if output == 0:
-            #     return "Done."
-            # else:
-            #     return "Opps Something went Wrong."
+            add_command_handler()
         elif command == "del":
             del_command_handler()
         elif command == "edit":
@@ -111,28 +105,36 @@ def add_command_handler():
 def edit_command_handler():
     website_name =  input("<Pas_Man> Website: ")
     email = input("<Pas_Man> Email: ")
-    new_password = input ("<Pas_Man> PassWord: " )
     time = str(datetime.now().strftime("%Y-%m-%d"))
-    code = db_write.db_update(new_password, time, website_name, email)
-    if code == 0:
-        print("Done")
-    else:
-        print("Something Went Wrong.")
 
-def check_master_pass():
+    old_password =  input("<Pas_Man> Old PassWord: ").strip()
+
+    master_key= input("Key: ").lower()        
+
+    flags = validate.validate_password(old_password, website_name, email, master_key)
+
+    if flags:
+        new_password = input("<Pas_Man> New PassWord: ").strip()
+        password , salt, nonce = cipher.encrypt_pass(master_key, new_password)
+        code = db_write.db_update(
+            password, 
+            time, 
+            salt , 
+            nonce, 
+            website_name, 
+            email)
+        print("[green]Done")
+    else:
+        print("[red]Wrong Password or Master Key.")
+    
+
+def show_command_handler():
     website = input("Website: ").lower()
     email = input("Email: ").lower()
     master_key= input("Key: ").lower()
 
-    # while True:
-    #     if master_key != "123":
-    #         print("Wrong Pass")
-    #         continue 
-    #     else:
-    #         break
-
     result = db_read.read_db(website, email)
-    # print(result)
+  
     website = result[0]
     email = result[1]
     encrypted_password = result[2]
@@ -140,22 +142,26 @@ def check_master_pass():
     nonce = result[4]
 
     password = cipher.decrypt_pass(master_key, encrypted_password, salt, nonce)
-
+    clear_screen()
+    banner()
     print(Panel.fit(f"Name: {website}\nEmail: {email}\nPassword: {password}"))
 
 def del_command_handler():
     website_name =  input("<Pas_Man> Website: ")
     email = input("<Pas_Man> Email: ")
-    code = db_write.db_delet(website_name, email)
-    if code == 0:
-            print("Done")
+    password = input("<Pas_Man> Password: ")
+    master_key= input("Key: ").lower()
+    code = validate.validate_password(password, website_name, email, master_key)
+    if code:
+        db_write.db_delet(website_name, email)
+        print("[green]Done")
     else:
-        print("Something Went Wrong.")
+        print("[red]Something Went Wrong.")
 
 def main():
     clear_screen()
     banner()
-    print(command_decidion())
+    command_decidion()
 
 if __name__ == "__main__":
     main()

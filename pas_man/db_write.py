@@ -55,16 +55,16 @@ def db_connection(website_name, email, user_name, password, salt, nonce, created
         # Else 1 => !OK
         return 1
 
-def db_update(new_password, updated_at, website_name, email):
+def db_update(new_password, updated_at, salt , nonce, website_name, email):
     session, cur = connection_pool()
 
     cur.execute(
     """
     UPDATE password
-    SET password = ?, updated_at = ?
+    SET password = ?, updated_at = ? , salt = ?, nonce = ?
     WHERE website_name = ? AND email = ?
     """,
-    (new_password, updated_at, website_name, email)
+    (new_password, updated_at, salt , nonce , website_name, email)
     )
 
     session.close()

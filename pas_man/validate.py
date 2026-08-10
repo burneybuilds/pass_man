@@ -3,6 +3,9 @@ import re
 from rich import print
 from rich.panel import Panel
 
+from db_read import read_db
+from cipher import decrypt_pass
+
 """
 Validate user email input.
 
@@ -67,3 +70,20 @@ def confirm_data(website_name, email, user_name, password):
             return master_key
         except ValueError:
             continue
+
+
+def validate_password(old_password: str, website_name, email, master_key) -> str:
+    data = read_db(website_name, email)
+
+    salt = data[3]
+    nonce = data[4]
+    encrypted_password = data[2]
+
+    password = decrypt_pass(master_key, encrypted_password, salt, nonce)
+
+    if password == old_password:
+        return True
+    else:
+        return False
+
+
