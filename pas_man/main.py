@@ -9,6 +9,8 @@ import validate
 import db_write 
 import db_read 
 
+import cipher
+
 def banner():
     passman_banner=rf"""
 ______             ___  ___            
@@ -82,25 +84,26 @@ def add_command_handler():
     website_name = validate.website_name_valid()
     email = validate.validate_email()
     user_name = validate.valid_user_name()
-    password = validate.validate_password()
+    plain_password = validate.validate_password()
 
     # Record when the entry was created.
     time = str(datetime.now().strftime("%Y-%m-%d"))
 
-    # Make sure the person adding the password is actually us. 👀
-    key = validate.confirm_data(website_name, email, user_name, password)
-
-    if key != 123:
-        return "Wrong Password"
+    # # Make sure the person adding the password is actually us. 👀
+    # key = validate.confirm_data(website_name, email, user_name, p)
+    key = input("<Pas_Man> Master Key: ")
+    password , salt, nonce = cipher.encrypt_pass(key, plain_password)
 
     # Everything checks out — send the entry to SQLite.
     data = db_write.db_connection(
-        website_name,
-        email,
-        user_name,
-        password,
-        time,
-        time
+    website_name,
+    email,
+    user_name,
+    password,
+    salt,
+    nonce,
+    time,
+    time,
     )
 
     return data
@@ -121,17 +124,22 @@ def check_master_pass():
     email = input("Email: ").lower()
     master_key= input("Key: ").lower()
 
-    while True:
-        if master_key != "123":
-            print("Wrong Pass")
-            continue 
-        else:
-            break
+    # while True:
+    #     if master_key != "123":
+    #         print("Wrong Pass")
+    #         continue 
+    #     else:
+    #         break
 
-    resulte = db_read.read_db(website, email)
-    website = resulte[0]
-    email = resulte[1]
-    password = resulte[2]
+    result = db_read.read_db(website, email)
+    # print(result)
+    website = result[0]
+    email = result[1]
+    encrypted_password = result[2]
+    salt = result[3]
+    nonce = result[4]
+
+    password = cipher.decrypt_pass(master_key, encrypted_password, salt, nonce)
 
     print(Panel.fit(f"Name: {website}\nEmail: {email}\nPassword: {password}"))
 

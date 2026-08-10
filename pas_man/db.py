@@ -10,7 +10,7 @@ def connection_pool():
     """
     try:
         # Open the database connection.
-        session = sqlite3.connect("main.db", autocommit=True)
+        session = sqlite3.connect("db/main.db", autocommit=True)
         cur = session.cursor()
 
         # Check if the password table already exists.
@@ -29,14 +29,15 @@ def connection_pool():
         # No table? No problem, SQLite, build one. :)
         cur.execute("""
             CREATE TABLE password (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                website_name TEXT NOT NULL,
-                email TEXT,
-                user_name TEXT,
-                password TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            )
+            website_name TEXT NOT NULL,
+            email TEXT,
+            user_name TEXT,
+            password BLOB NOT NULL,
+            salt BLOB NOT NULL,
+            nonce BLOB NOT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+            );
         """)
 
         # Return the connection and cursor for database operations.

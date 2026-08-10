@@ -18,7 +18,7 @@ Returns:
         0 if the entry was successfully inserted.
         1 if an error occurred while inserting the entry.
 """
-def db_connection(website_name, email, user_name, password, created_at, updated_at):
+def db_connection(website_name, email, user_name, password, salt, nonce, created_at, updated_at):
     try:
         # Creates a connection with the sqllite db.
         # session = sqlite3.connect("tutorial.db", autocommit=True)
@@ -31,13 +31,20 @@ def db_connection(website_name, email, user_name, password, created_at, updated_
         cur.execute(
             """
             INSERT INTO password
-            (website_name, email, user_name, password, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (website_name, email, user_name, password, salt, nonce, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (website_name, email, user_name, password, created_at, updated_at)
+            (
+                website_name,
+                email,
+                user_name,
+                password,
+                salt,
+                nonce,
+                created_at,
+                updated_at
+            )
         )
-        # Updates the db with the data.
-        # session.commit()
 
         # Closes the connection to the db.
         session.close()

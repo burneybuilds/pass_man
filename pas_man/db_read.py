@@ -15,7 +15,7 @@ def read_db(website_name, email):
     # Look for an entry matching the website and email.
     cur.execute(
         """
-        SELECT website_name, email, password
+        SELECT website_name, email, password , salt, nonce
         FROM password
         WHERE website_name = ? AND email = ?
         """,
