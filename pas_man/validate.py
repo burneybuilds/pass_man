@@ -57,8 +57,8 @@ def valid_user_name():
 
     return user_name
 
-def validate_password():
-    return input("<Pas-Man> PassWord: ")
+# def validate_password():
+#     return input("<Pas-Man> PassWord: ")
 
 def confirm_data(website_name, email, user_name, password):
     print(Panel.fit(f"Name: {website_name}\nEmail: {email}\nUser_Name: {user_name}\nPassword: {password}"))

@@ -78,7 +78,7 @@ def add_command_handler():
     website_name = validate.website_name_valid()
     email = validate.validate_email()
     user_name = validate.valid_user_name()
-    plain_password = validate.validate_password()
+    plain_password = input("<Pas_Man> Password: ")
 
     # Record when the entry was created.
     time = str(datetime.now().strftime("%Y-%m-%d"))
