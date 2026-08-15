@@ -1,6 +1,6 @@
 from db import connection_pool
 
-def read_db(website_name, email):
+def read_db(website_name: str, email: str) -> tuple:
     """
     Retrieve a password entry from the database using the website name
     and email address.

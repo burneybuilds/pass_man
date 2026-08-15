@@ -65,7 +65,7 @@ def command_decidion():
             clear_screen()
             sys.exit("Seen Yaa..")
 
-def add_command_handler():
+def add_command_handler() -> str:
     """
     Handle the `add` command by validating the entry details,
     confirming the master key, and writing the new entry to the database.
@@ -74,12 +74,19 @@ def add_command_handler():
         str: The result of the database operation or an error message
         if the master key is incorrect.
     """
+    clear_screen()
+    banner()
     # Collect and validate the new entry details.
     website_name = validate.website_name_valid()
     email = validate.validate_email()
     user_name = validate.valid_user_name()
     plain_password = input("<Pas_Man> Password: ")
 
+    exites = db_read.read_db(website_name, email)
+    # early check if the password exits.
+    if exites:
+        return "Account Already Exits"
+    
     # Record when the entry was created.
     time = str(datetime.now().strftime("%Y-%m-%d"))
 
@@ -103,6 +110,8 @@ def add_command_handler():
     return data
 
 def edit_command_handler():
+    clear_screen()
+    banner()
     website_name =  input("<Pas_Man> Website: ")
     email = input("<Pas_Man> Email: ")
     time = str(datetime.now().strftime("%Y-%m-%d"))
@@ -129,6 +138,8 @@ def edit_command_handler():
     
 
 def show_command_handler():
+    clear_screen()
+    banner()
     website = input("Website: ").lower()
     email = input("Email: ").lower()
     master_key= input("Key: ").lower()

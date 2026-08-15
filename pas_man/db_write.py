@@ -1,31 +1,26 @@
 from db import connection_pool
 
-"""
-Insert a new password entry into the SQLite database.
+def db_connection(website_name: str, email: str, user_name: str, password: str, salt: str, nonce: str, created_at: str, updated_at: str) -> int:
+    """
+    Insert a new password entry into the SQLite database.
 
-This function is called by `writer_handler()` after validating the
-user's input. 
+    This function is called by `writer_handler()` after validating the
+    user's input. 
 
-Args:
-    website_name (str): Name of the website or service.
-    email (str): Email address associated with the account.
-    user_name (str): Username for the account.
-    password (str): Encrypted password to store.
-    time (str): Timestamp indicating when the entry was created.
+    Args:
+        website_name (str): Name of the website or service.
+        email (str): Email address associated with the account.
+        user_name (str): Username for the account.
+        password (str): Encrypted password to store.
+        time (str): Timestamp indicating when the entry was created.
 
-Returns:
-    int:
-        0 if the entry was successfully inserted.
-        1 if an error occurred while inserting the entry.
-"""
-def db_connection(website_name, email, user_name, password, salt, nonce, created_at, updated_at):
+    Returns:
+        int:
+            0 if the entry was successfully inserted.
+            1 if an error occurred while inserting the entry.
+    """
     try:
-        # Creates a connection with the sqllite db.
-        # session = sqlite3.connect("tutorial.db", autocommit=True)
-
-        # This is for running command and communicating with the db.
-        # cur = session.cursor()
-
+        # make a connection using the connection pool located in the db.py file.
         session, cur = connection_pool()
 
         cur.execute(
@@ -55,29 +50,35 @@ def db_connection(website_name, email, user_name, password, salt, nonce, created
         # Else 1 => !OK
         return 1
 
-def db_update(new_password, updated_at, salt , nonce, website_name, email):
+def db_update(new_password: str, updated_at: str, salt: str, nonce: str, website_name: str, email: str) -> int:
     session, cur = connection_pool()
 
-    cur.execute(
-    """
-    UPDATE password
-    SET password = ?, updated_at = ? , salt = ?, nonce = ?
-    WHERE website_name = ? AND email = ?
-    """,
-    (new_password, updated_at, salt , nonce , website_name, email)
-    )
+    try:
+        cur.execute(
+        """
+        UPDATE password
+        SET password = ?, updated_at = ? , salt = ?, nonce = ?
+        WHERE website_name = ? AND email = ?
+        """,
+        (new_password, updated_at, salt , nonce , website_name, email)
+        )
 
-    session.close()
-    return 0
-
-def db_delet(website_name, email):
+        session.close()
+        return 0
+    except Exception as e:
+        return 1 
+    
+def db_delet(website_name: str , email: str) -> int:
     session, cur = connection_pool()
-    cur.execute(
-    """
-    DELETE FROM password
-    WHERE website_name = ? AND email = ?
-    """,
-    (website_name, email)
-    )
-    session.close()
-    return 0
+    try:
+        cur.execute(
+        """
+        DELETE FROM password
+        WHERE website_name = ? AND email = ?
+        """,
+        (website_name, email)
+        )
+        session.close()
+        return 0
+    except Exception as e:
+        return 1
