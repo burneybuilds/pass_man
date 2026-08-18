@@ -86,12 +86,18 @@ def add_command_handler() -> str:
     # early check if the password exits.
     if exites:
         return "Account Already Exits"
-    
+
+    check_flag = validate.confirm_data(website_name, email, user_name, password)
+
+    if check_flag != 0:
+        print("Do you want to update a field ? ")
+        user_input = input("Enter the Name of the filed you want to update: ").strip()
+        
+
     # Record when the entry was created.
     time = str(datetime.now().strftime("%Y-%m-%d"))
 
-    # # Make sure the person adding the password is actually us. 👀
-    # key = validate.confirm_data(website_name, email, user_name, p)
+    # Make sure the person adding the password is actually us. 
     key = input("<Pas_Man> Master Key: ")
     password , salt, nonce = cipher.encrypt_pass(key, plain_password)
 
@@ -113,29 +119,36 @@ def edit_command_handler():
     clear_screen()
     banner()
     website_name =  input("<Pas_Man> Website: ")
-    email = input("<Pas_Man> Email: ")
     time = str(datetime.now().strftime("%Y-%m-%d"))
+    choice = input(f"What do you want to update for {website_name}.").lower().strip()
+    while True:
+        if choice == "email":
+            email = input("<Pas_Man> Email: ")
+        elif choice == "password":
+            email = input("<Pas_Man> Email: ")
+            old_password =  input("<Pas_Man> Old PassWord: ").strip()
+        elif choice == "back":
+            ...
+        else:
+            print("Try Again ? ")
+        master_key= input("Key: ").lower().strip()
 
-    old_password =  input("<Pas_Man> Old PassWord: ").strip()
+        flags = validate.validate_password(old_password, website_name, email, master_key)
 
-    master_key= input("Key: ").lower()        
-
-    flags = validate.validate_password(old_password, website_name, email, master_key)
-
-    if flags:
-        new_password = input("<Pas_Man> New PassWord: ").strip()
-        password , salt, nonce = cipher.encrypt_pass(master_key, new_password)
-        code = db_write.db_update(
-            password, 
-            time, 
-            salt , 
-            nonce, 
-            website_name, 
-            email)
-        print("[green]Done")
-    else:
-        print("[red]Wrong Password or Master Key.")
-    
+        if flags:
+            new_password = input("<Pas_Man> New PassWord: ").strip()
+            password , salt, nonce = cipher.encrypt_pass(master_key, new_password)
+            code = db_write.db_update(
+                password, 
+                time, 
+                salt , 
+                nonce, 
+                website_name, 
+                email)
+            print("[green]Done")
+        else:
+            print("[red]Wrong Password or Master Key.")
+        
 
 def show_command_handler():
     clear_screen()

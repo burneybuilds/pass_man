@@ -60,19 +60,18 @@ def valid_user_name():
 # def validate_password():
 #     return input("<Pas-Man> PassWord: ")
 
-def confirm_data(website_name, email, user_name, password):
+def confirm_data(website_name, email, user_name, password) -> int:
     print(Panel.fit(f"Name: {website_name}\nEmail: {email}\nUser_Name: {user_name}\nPassword: {password}"))
     print("Check if all the data is correct? ")
 
-    while True:
-        try:
-            master_key = int(input("Enter the Master Key: "))
-            return master_key
-        except ValueError:
-            continue
+    user_input = input("Yes / No : ").lower()
+    if user_input == "y" or user_input == "yes":
+        return 0
+    elif user_input == "n" or user_input == "no":
+        return 1
 
 
-def validate_password(old_password: str, website_name, email, master_key) -> str:
+def validate_password(old_password: str, website_name: str, email: str, master_key: str ) -> str:
     data = read_db(website_name, email)
 
     salt = data[3]
@@ -86,4 +85,15 @@ def validate_password(old_password: str, website_name, email, master_key) -> str
     else:
         return False
 
-
+def update_filed(field: str ) -> str:
+    match field:
+        case "website_name":
+            return input("Update the website_name: ").strip().lower()
+        case "email":
+            return "Not Found"
+        case "user_name":
+            return "Unknown"
+        case "password": 
+            return ""
+        case _ : 
+            return None
