@@ -1,51 +1,142 @@
-<p align="center">
-  <img src="imgs/logo.png" width="450">
-</p>
-
 # PassMan
 
-PassMan is a local password management tool.
+PassMan is a lightweight local password manager built as a CLI learning project. It stores account metadata and encrypted passwords in a local SQLite database, using a user-supplied master key to derive an encryption key with Argon2id and encrypt data with AES-GCM.
 
-## Why I Built This
+## What it does
 
-Like a lot of people learning Python, I could have built another CRUD application. I didn't really want to make something just because everyone else was making it.
+- Store a password entry for a website/service
+- Save the associated website name, email, and username
+- Encrypt each password before saving it
+- Retrieve and decrypt stored passwords using the master key
+- Manage entries from the command line
+- Keep everything local on the machine, with no remote service
 
-For a long time, I kept all of my passwords in a notebook. It worked, and in some ways it was safer because it was completely offline. The problem was that every time I needed a password, I had to find the notebook, flip through the pages, find the password, and type it manually.
+## Project overview
 
-I wanted something that fit better into how I already use my computer.
+This project is intentionally small and focused on the core mechanics of password storage:
 
-So I built PassMan.
+- `pas_man/main.py` contains the interactive CLI loop and command handlers
+- `pas_man/cipher.py` handles key derivation and encryption/decryption
+- `pas_man/db.py` creates the SQLite database and table if needed
+- `pas_man/db_read.py` fetches stored records
+- `pas_man/db_write.py` inserts, updates, and deletes entries
+- `pas_man/validate.py` validates inputs and checks master-key/password correctness
 
-## What It Can Do
+## How encryption works
 
-PassMan allows you to:
+The project uses a two-step flow:
 
-* Store passwords locally
-* Save the website name, email, and username associated with a password
-* Encrypt passwords before storing them
-* Retrieve and decrypt saved passwords
-* Add and manage password entries through the CLI
-* Store the encrypted data in a local SQLite database
+1. The user provides a master key.
+2. That master key is transformed with Argon2id using a random salt.
+3. The derived key is used with AES-GCM to encrypt the password.
+4. The ciphertext, salt, and nonce are stored in the SQLite database.
 
-PassMan uses a master password to derive an encryption key and uses that key to encrypt the stored passwords.
+When a password is retrieved, the same master key and stored salt are used to derive the key again, then AES-GCM decrypts the value.
 
-## Learning Project
+## Setup
 
-PassMan is also a learning project.
+### Prerequisites
 
-I built it to learn by actually implementing the different parts myself rather than only following tutorials or copying an existing project.
+- Python 3.12+
+- pip
 
-AI was used for some parts of the development process, but **AI was not used for every part of the project**. Some parts were written and figured out independently as part of my learning process.
+### Install dependencies
 
-The goal of the project is not to claim that I built everything from scratch without any help. The goal is to understand what I am building and learn through the process.
+Windows PowerShell:
 
-## Note
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+pip install -e .
+```
 
-PassMan is a personal project and has not been professionally audited. It is **not intended to replace established password managers**.
+macOS/Linux:
 
-If you use it, use it as a personal/learning project and keep backups of your encrypted database.
-at fit better into how I already use my computer.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
+```
 
-So I built PassMan.
+## Running the app
 
-This isn't meant to replace professional password managers. It's a personal project that solves a problem I actually had while helping me learn by building something I would use.
+After installation, you can start the CLI with:
+
+```bash
+passman
+```
+
+You can also run it directly:
+
+```bash
+python -m pas_man.main
+```
+
+## CLI commands
+
+The interactive menu supports these commands:
+
+- `show` — show a stored password for a website/email pair
+- `add` — add a new password entry
+- `del` — delete a stored entry
+- `edit` — update a password entry
+- `exit` — leave the program
+
+### Example flow
+
+1. Run `passman`
+2. Choose `add`
+3. Enter:
+   - website name
+   - email
+   - username
+   - password
+   - master key
+4. The program stores the encrypted password and metadata in the SQLite database
+
+To retrieve it later:
+
+1. Run `passman`
+2. Choose `show`
+3. Enter the website name, email, and master key
+4. The password is decrypted and displayed
+
+## Database
+
+The app creates and uses a local SQLite database automatically. The code currently targets:
+
+```text
+db/main.db
+```
+
+The table created is named `password` and stores:
+
+- `website_name`
+- `email`
+- `user_name`
+- `password`
+- `salt`
+- `nonce`
+- `created_at`
+- `updated_at`
+
+## Security notes
+
+This project is a learning-focused implementation and should be treated as a personal utility, not a production-grade password manager.
+
+Important notes:
+
+- It stores data locally only
+- It does not replace professional password manager security models
+- It should be used with caution and regular backups
+- The database contains encrypted values, but the security model is still simple and educational
+
+## Development notes
+
+The repository also contains a few basic tests under `tests/`, though the project is still quite minimal and experimental in scope.
+
+## Status
+
+PassMan is a small, local, Python-based CLI project meant to explore password management concepts, encryption, and SQLite-backed storage in a practical way.
