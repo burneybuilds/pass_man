@@ -1,4 +1,4 @@
-from db import connection_pool
+from .db import connection_pool
 
 def read_db(website_name: str, email: str) -> tuple:
     """

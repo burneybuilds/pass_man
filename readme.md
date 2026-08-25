@@ -81,7 +81,7 @@ The interactive menu supports these commands:
 - `show` — show a stored password for a website/email pair
 - `add` — add a new password entry
 - `del` — delete a stored entry
-- `edit` — update a password entry
+- `edit` — update a password entry after verifying the old password and master key
 - `exit` — leave the program
 
 ### Example flow
@@ -108,7 +108,7 @@ To retrieve it later:
 The app creates and uses a local SQLite database automatically. The code currently targets:
 
 ```text
-db/main.db
+pas_man/db/main.db
 ```
 
 The table created is named `password` and stores:
@@ -135,8 +135,14 @@ Important notes:
 
 ## Development notes
 
-The repository also contains a few basic tests under `tests/`, though the project is still quite minimal and experimental in scope.
+Run the test suite with:
+
+```bash
+python -m pytest -q
+```
+
+The tests cover email input validation and an encryption/decryption round trip.
 
 ## Status
 
-PassMan is a small, local, Python-based CLI project meant to explore password management concepts, encryption, and SQLite-backed storage in a practical way.
+PassMan is a small, local, Python-based CLI project meant to explore password management concepts, encryption, and SQLite-backed storage in a practical way. The core add, show, edit, and delete flows are implemented; this remains an educational utility rather than a production password manager.

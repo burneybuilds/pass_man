@@ -3,8 +3,8 @@ import re
 from rich import print
 from rich.panel import Panel
 
-from db_read import read_db
-from cipher import decrypt_pass
+from .db_read import read_db
+from .cipher import decrypt_pass
 
 """
 Validate user email input.
@@ -62,17 +62,18 @@ def valid_user_name():
 
 def confirm_data(website_name, email, user_name, password) -> int:
     print(Panel.fit(f"Name: {website_name}\nEmail: {email}\nUser_Name: {user_name}\nPassword: {password}"))
-    print("Check if all the data is correct? ")
-
-    user_input = input("Yes / No : ").lower()
-    if user_input == "y" or user_input == "yes":
-        return 0
-    elif user_input == "n" or user_input == "no":
-        return 1
+    while True:
+        user_input = input("Check if all the data is correct? Yes / No: ").lower().strip()
+        if user_input in {"y", "yes"}:
+            return 0
+        if user_input in {"n", "no"}:
+            return 1
 
 
 def validate_password(old_password: str, website_name: str, email: str, master_key: str ) -> str:
     data = read_db(website_name, email)
+    if data is None:
+        return False
 
     salt = data[3]
     nonce = data[4]

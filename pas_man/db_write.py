@@ -1,4 +1,4 @@
-from db import connection_pool
+from .db import connection_pool
 
 def db_connection(website_name: str, email: str, user_name: str, password: str, salt: str, nonce: str, created_at: str, updated_at: str) -> int:
     """
@@ -41,6 +41,7 @@ def db_connection(website_name: str, email: str, user_name: str, password: str, 
             )
         )
 
+        session.commit()
         # Closes the connection to the db.
         session.close()
 
@@ -63,6 +64,7 @@ def db_update(new_password: str, updated_at: str, salt: str, nonce: str, website
         (new_password, updated_at, salt , nonce , website_name, email)
         )
 
+        session.commit()
         session.close()
         return 0
     except Exception as e:
@@ -78,6 +80,7 @@ def db_delet(website_name: str , email: str) -> int:
         """,
         (website_name, email)
         )
+        session.commit()
         session.close()
         return 0
     except Exception as e:

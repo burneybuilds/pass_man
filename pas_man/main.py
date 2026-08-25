@@ -3,13 +3,14 @@ import sys
 from datetime import datetime
 
 from rich import print
-from rich.panel import Panel 
+from rich.panel import Panel
+from cryptography.exceptions import InvalidTag
 
-import validate 
-import db_write 
-import db_read 
+from . import validate
+from . import db_write
+from . import db_read
 
-import cipher
+from . import cipher
 
 def banner():
     passman_banner=rf"""
@@ -36,7 +37,7 @@ def validate_input():
             if user_choice not in user_options:
                 clear_screen()
                 banner()
-                print("\n[-] Error: show, add , rm, update.\n")
+                print("\n[-] Error: choose show, add, del, edit, or exit.\n")
                 continue
             return user_choice
 
@@ -87,12 +88,9 @@ def add_command_handler() -> str:
     if exites:
         return "Account Already Exits"
 
-    check_flag = validate.confirm_data(website_name, email, user_name, password)
-
+    check_flag = validate.confirm_data(website_name, email, user_name, plain_password)
     if check_flag != 0:
-        print("Do you want to update a field ? ")
-        user_input = input("Enter the Name of the filed you want to update: ").strip()
-        
+        return "Entry cancelled"
 
     # Record when the entry was created.
     time = str(datetime.now().strftime("%Y-%m-%d"))
@@ -120,34 +118,27 @@ def edit_command_handler():
     banner()
     website_name =  input("<Pas_Man> Website: ")
     time = str(datetime.now().strftime("%Y-%m-%d"))
-    choice = input(f"What do you want to update for {website_name}.").lower().strip()
-    while True:
-        if choice == "email":
-            email = input("<Pas_Man> Email: ")
-        elif choice == "password":
-            email = input("<Pas_Man> Email: ")
-            old_password =  input("<Pas_Man> Old PassWord: ").strip()
-        elif choice == "back":
-            ...
-        else:
-            print("Try Again ? ")
-        master_key= input("Key: ").lower().strip()
+    choice = input(f"Update password for {website_name}? (yes/no): ").lower().strip()
+    if choice not in {"y", "yes"}:
+        return "Edit cancelled"
 
+    email = input("<Pas_Man> Email: ").strip().lower()
+    old_password = input("<Pas_Man> Old Password: ").strip()
+    master_key = input("Key: ")
+    try:
         flags = validate.validate_password(old_password, website_name, email, master_key)
+    except (InvalidTag, TypeError):
+        flags = False
 
-        if flags:
-            new_password = input("<Pas_Man> New PassWord: ").strip()
-            password , salt, nonce = cipher.encrypt_pass(master_key, new_password)
-            code = db_write.db_update(
-                password, 
-                time, 
-                salt , 
-                nonce, 
-                website_name, 
-                email)
-            print("[green]Done")
-        else:
-            print("[red]Wrong Password or Master Key.")
+    if not flags:
+        print("[red]Wrong Password, Master Key, or account.")
+        return 1
+
+    new_password = input("<Pas_Man> New Password: ").strip()
+    password, salt, nonce = cipher.encrypt_pass(master_key, new_password)
+    code = db_write.db_update(password, time, salt, nonce, website_name, email)
+    print("[green]Done" if code == 0 else "[red]Update failed")
+    return code
         
 
 def show_command_handler():
@@ -158,6 +149,9 @@ def show_command_handler():
     master_key= input("Key: ").lower()
 
     result = db_read.read_db(website, email)
+    if result is None:
+        print("[red]No matching account found.")
+        return
   
     website = result[0]
     email = result[1]
@@ -165,7 +159,11 @@ def show_command_handler():
     salt = result[3]
     nonce = result[4]
 
-    password = cipher.decrypt_pass(master_key, encrypted_password, salt, nonce)
+    try:
+        password = cipher.decrypt_pass(master_key, encrypted_password, salt, nonce)
+    except (InvalidTag, TypeError):
+        print("[red]Wrong master key.")
+        return
     clear_screen()
     banner()
     print(Panel.fit(f"Name: {website}\nEmail: {email}\nPassword: {password}"))
@@ -175,10 +173,16 @@ def del_command_handler():
     email = input("<Pas_Man> Email: ")
     password = input("<Pas_Man> Password: ")
     master_key= input("Key: ").lower()
-    code = validate.validate_password(password, website_name, email, master_key)
+    try:
+        code = validate.validate_password(password, website_name, email, master_key)
+    except (InvalidTag, TypeError):
+        code = False
     if code:
-        db_write.db_delet(website_name, email)
-        print("[green]Done")
+        delete_code = db_write.db_delet(website_name, email)
+        if delete_code:
+            print("[red]Delete failed.")
+        else:
+            print("[green]Done")
     else:
         print("[red]Something Went Wrong.")
 

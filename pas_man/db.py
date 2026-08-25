@@ -1,4 +1,8 @@
 import sqlite3
+from pathlib import Path
+
+
+DATABASE_PATH = Path(__file__).resolve().parent / "db" / "main.db"
 
 def connection_pool():
     """
@@ -10,7 +14,8 @@ def connection_pool():
     """
     try:
         # Open the database connection.
-        session = sqlite3.connect("db/main.db", autocommit=True)
+        DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        session = sqlite3.connect(DATABASE_PATH)
         cur = session.cursor()
 
         # Check if the password table already exists.
@@ -46,4 +51,4 @@ def connection_pool():
     except Exception as e:
         # Something went wrong while connecting or creating the table.
         # just like your last relationship, nothing works.
-        return f"Something Went Wrong {e}"
+        raise RuntimeError(f"Unable to open database: {e}") from e
