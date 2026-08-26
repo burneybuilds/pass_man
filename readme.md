@@ -1,48 +1,27 @@
 # PassMan
 
-PassMan is a lightweight local password manager built as a CLI learning project. It stores account metadata and encrypted passwords in a local SQLite database, using a user-supplied master key to derive an encryption key with Argon2id and encrypt data with AES-GCM.
+PassMan is a small command-line password manager written in Python. It keeps account details in a local SQLite database and encrypts saved passwords before storing them. There is no cloud service or remote account: your vault stays on the machine where PassMan runs.
 
-## What it does
+This is an educational project for exploring password storage, authenticated encryption, and SQLite-backed CLI applications. It is not intended to replace a production password manager.
 
-- Store a password entry for a website/service
-- Save the associated website name, email, and username
-- Encrypt each password before saving it
-- Retrieve and decrypt stored passwords using the master key
-- Manage entries from the command line
-- Keep everything local on the machine, with no remote service
+## Features
 
-## Project overview
+- Add accounts with a website, email, username, and password
+- View a saved password after providing the website, email, and master key
+- Edit an existing password after verification
+- Delete an account after verification
+- Create the local database automatically on first use
 
-This project is intentionally small and focused on the core mechanics of password storage:
+## Requirements
 
-- `pas_man/main.py` contains the interactive CLI loop and command handlers
-- `pas_man/cipher.py` handles key derivation and encryption/decryption
-- `pas_man/db.py` creates the SQLite database and table if needed
-- `pas_man/db_read.py` fetches stored records
-- `pas_man/db_write.py` inserts, updates, and deletes entries
-- `pas_man/validate.py` validates inputs and checks master-key/password correctness
-
-## How encryption works
-
-The project uses a two-step flow:
-
-1. The user provides a master key.
-2. That master key is transformed with Argon2id using a random salt.
-3. The derived key is used with AES-GCM to encrypt the password.
-4. The ciphertext, salt, and nonce are stored in the SQLite database.
-
-When a password is retrieved, the same master key and stored salt are used to derive the key again, then AES-GCM decrypts the value.
-
-## Setup
-
-### Prerequisites
-
-- Python 3.12+
+- Python 3.12 or newer
 - pip
 
-### Install dependencies
+## Installation
 
-Windows PowerShell:
+Create and activate a virtual environment, then install the project dependencies.
+
+### Windows PowerShell
 
 ```powershell
 python -m venv .venv
@@ -51,7 +30,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-macOS/Linux:
+### macOS or Linux
 
 ```bash
 python3 -m venv .venv
@@ -60,89 +39,71 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-## Running the app
+## Run PassMan
 
-After installation, you can start the CLI with:
+After installation, start the interactive CLI with:
 
 ```bash
 passman
 ```
 
-You can also run it directly:
+You can also run the module directly:
 
 ```bash
 python -m pas_man.main
 ```
 
-## CLI commands
+At the `<Pas-Man>` prompt, use one of these commands:
 
-The interactive menu supports these commands:
+| Command | Action |
+| --- | --- |
+| `add` | Create a new account entry |
+| `show` | Find and decrypt an account password |
+| `edit` | Replace an existing password |
+| `del` | Delete an account entry |
+| `exit` | Close the application |
 
-- `show` — show a stored password for a website/email pair
-- `add` — add a new password entry
-- `del` — delete a stored entry
-- `edit` — update a password entry after verifying the old password and master key
-- `exit` — leave the program
+### Basic workflow
 
-### Example flow
+1. Run `passman` and enter `add`.
+2. Provide the website, email, username, and password.
+3. Enter a master key. PassMan uses it to encrypt the password.
+4. Later, use `show` with the same website, email, and master key to display the password.
 
-1. Run `passman`
-2. Choose `add`
-3. Enter:
-   - website name
-   - email
-   - username
-   - password
-   - master key
-4. The program stores the encrypted password and metadata in the SQLite database
+## Encryption and storage
 
-To retrieve it later:
+For each password, PassMan:
 
-1. Run `passman`
-2. Choose `show`
-3. Enter the website name, email, and master key
-4. The password is decrypted and displayed
+1. Generates a random salt.
+2. Derives a 32-byte encryption key from the master key with Argon2id.
+3. Encrypts the password with AES-GCM and a random nonce.
+4. Stores the encrypted value, salt, and nonce in SQLite.
 
-## Database
-
-The app creates and uses a local SQLite database automatically. The code currently targets:
+The website, email, username, and dates are stored as database metadata and are not encrypted. The database is created automatically at:
 
 ```text
 pas_man/db/main.db
 ```
 
-The table created is named `password` and stores:
+## Development
 
-- `website_name`
-- `email`
-- `user_name`
-- `password`
-- `salt`
-- `nonce`
-- `created_at`
-- `updated_at`
-
-## Security notes
-
-This project is a learning-focused implementation and should be treated as a personal utility, not a production-grade password manager.
-
-Important notes:
-
-- It stores data locally only
-- It does not replace professional password manager security models
-- It should be used with caution and regular backups
-- The database contains encrypted values, but the security model is still simple and educational
-
-## Development notes
-
-Run the test suite with:
+Run the tests with:
 
 ```bash
 python -m pytest -q
 ```
 
-The tests cover email input validation and an encryption/decryption round trip.
+The repository contains tests for input validation and encryption/decryption behavior.
 
-## Status
+## Security warning
 
-PassMan is a small, local, Python-based CLI project meant to explore password management concepts, encryption, and SQLite-backed storage in a practical way. The core add, show, edit, and delete flows are implemented; this remains an educational utility rather than a production password manager.
+PassMan is a learning-focused utility with a simple security model. Use it only with data you are comfortable storing locally, choose a strong master key, and keep backups of the database. Do not treat it as a production-grade password manager.
+
+## Project structure
+
+- `pas_man/main.py` - interactive CLI and command handlers
+- `pas_man/cipher.py` - Argon2id key derivation and AES-GCM encryption
+- `pas_man/db.py` - SQLite connection and table creation
+- `pas_man/db_read.py` - database reads
+- `pas_man/db_write.py` - inserts, updates, and deletes
+- `pas_man/validate.py` - input and credential validation
