@@ -6,11 +6,11 @@ from rich import print
 from rich.panel import Panel
 from cryptography.exceptions import InvalidTag
 
-from . import validate
-from . import db_write
-from . import db_read
+from pas_man import validate
+from pas_man import db_write
+from pas_man import db_read
 
-from . import cipher
+from pas_man import cipher
 
 def banner():
     passman_banner=rf"""

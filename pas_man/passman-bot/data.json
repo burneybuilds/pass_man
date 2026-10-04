@@ -1,0 +1,39 @@
+{
+  "passwords": [
+    {
+      "id": 1,
+      "service": "GitHub",
+      "username": "albert_dev",
+      "password": "GitHub@1234",
+      "category": "Development"
+    },
+    {
+      "id": 2,
+      "service": "Gmail",
+      "username": "albert@example.com",
+      "password": "Gmail@5678",
+      "category": "Email"
+    },
+    {
+      "id": 3,
+      "service": "Discord",
+      "username": "albert_dev",
+      "password": "Discord@9012",
+      "category": "Social"
+    },
+    {
+      "id": 4,
+      "service": "LinkedIn",
+      "username": "albert@example.com",
+      "password": "LinkedIn@3456",
+      "category": "Social"
+    },
+    {
+      "id": 5,
+      "service": "AWS",
+      "username": "albert_aws",
+      "password": "AWS@7890",
+      "category": "Cloud"
+    }
+  ]
+}
