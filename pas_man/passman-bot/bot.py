@@ -7,34 +7,62 @@ def read_json_data():
     
     with open("data.json", "r") as file:
         data = json.load(file)
-        service = data["passwords"]
-        print(service[0])
-        print(service)
-        for s in service:
-            print(s["service"])
 
+    return data
 
-    # return data
+def get_password(search_request):
+    
+    json_data = read_json_data()
+    data = json_data["passwords"]
+    
+    for d in data:
+        if d["service"] == search_request :
+            return d["password"]
+    
+    return None
 
-# async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     await update.message.reply_text(
-#         "Hello! 👋 I am your PassMan bot."
-#     )
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Hello! 👋 I am your PassMan bot."
+    )
 
+async def get(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    
+    # check if the context.args is empty and showes a erroe message.
+    if not context.args: 
+        await update.message.reply_text(
+                    "Please provide a service name. \n Example: /get Instagram"
+        )
+        return 
+    
+    search_request = context.args[0]
+    
+    password  = get_password(search_request)
+    
+    if password == None:
+        await update.message.reply_text(
+            "The Service Name is Not Avaliabel in the DataBase."
+        )
+    else:
+       await update.message.reply_text(
+            f"{search_request} = {password}"
+        )
 
 def main():
 
-    # TOKEN = 
+    TOKEN =
 
-    # app = Application.builder().token(TOKEN).build()
+    app = Application.builder().token(TOKEN).build()
 
-    # app.add_handler(
-    #     CommandHandler("start", start)
-    # )
-
-    # print("Bot is running...")
-    read_json_data()
-    # app.run_polling()
+    app.add_handler(
+        CommandHandler("start", start)
+    )
+    app.add_handler(
+        CommandHandler("get", get)
+    )
+    print("Bot is running...")
+    
+    app.run_polling()
     
 
 
