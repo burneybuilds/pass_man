@@ -21,6 +21,20 @@ def get_password(search_request):
     
     return None
 
+def add_new_data():
+    ...
+
+def list_of_services():
+    json_data = read_json_data()
+    data = json_data["passwords"]
+    services = []
+
+    for d in data:
+        services.append(d["service"])
+
+    return services
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Hello! 👋 I am your PassMan bot."
@@ -48,9 +62,19 @@ async def get(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{search_request} = {password}"
         )
 
+async def list(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    services = list_of_services()
+    services_text = "\n".join(services)
+    await update.message.reply_text(
+        f"{services_text}"
+    )
+
+async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    search_request = context.args[0]
+
 def main():
 
-    TOKEN =
+    TOKEN = ""
 
     app = Application.builder().token(TOKEN).build()
 
@@ -59,6 +83,9 @@ def main():
     )
     app.add_handler(
         CommandHandler("get", get)
+    )
+    app.add_handler(
+        CommandHandler("list", list)
     )
     print("Bot is running...")
     
