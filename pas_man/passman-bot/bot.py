@@ -1,7 +1,10 @@
 import json
 from telegram import Update
+from dotenv import load_dotenv
+import os
 from telegram.ext import Application, CommandHandler, ContextTypes
 
+from handlers import send_request
 
 def read_json_data():
     
@@ -11,15 +14,17 @@ def read_json_data():
     return data
 
 def get_password(search_request):
+    data = []
+    json_data = send_request(search_request)
+    # data.append(json_data["service"])
+    data.append(json_data["username"])
+    data.append(json_data["password"])
     
-    json_data = read_json_data()
-    data = json_data["passwords"]
+    # for d in data:
+    #     if d["service"] == search_request :
+    #         return d["password"]
     
-    for d in data:
-        if d["service"] == search_request :
-            return d["password"]
-    
-    return None
+    return data
 
 def add_new_data():
     ...
@@ -52,14 +57,14 @@ async def get(update: Update, context: ContextTypes.DEFAULT_TYPE):
     search_request = context.args[0]
     
     password  = get_password(search_request)
-    
+    services_text = "\n".join(password)
     if password == None:
         await update.message.reply_text(
-            "The Service Name is Not Avaliabel in the DataBase."
+            f"{services_text}"
         )
     else:
        await update.message.reply_text(
-            f"{search_request} = {password}"
+            f"{services_text}"
         )
 
 async def list(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -73,8 +78,8 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     search_request = context.args[0]
 
 def main():
-
-    TOKEN = ""
+    load_dotenv()
+    TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
     app = Application.builder().token(TOKEN).build()
 

@@ -4,3 +4,4 @@ __pycache__
 passman.egg-info
 *.db
 test.py
+.pytest_cache
