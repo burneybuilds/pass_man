@@ -38,3 +38,19 @@ def get_password(requested_password: str, db: Session = Depends(get_db)):
         )
 
     return password
+
+
+@router.post("/", response_model=PasswordResponse)
+def add_password(password_data: PasswordCreate, db: Session = Depends(get_db)):
+
+    new_password = Password(
+        service=password_data.service,
+        username=password_data.username,
+        password=password_data.password
+    )
+
+    db.add(new_password)
+    db.commit()
+    db.refresh(new_password)
+
+    return new_password
